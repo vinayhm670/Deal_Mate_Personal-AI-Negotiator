@@ -97,12 +97,12 @@ export interface ExpandedSearchSummary {
 export interface DealHunterProductCandidate {
   product: Product;
   sourceLabel:
-    | 'Amazon'
-    | 'Flipkart'
-    | 'Store Catalog'
-    | 'Local Stores'
-    | 'External Retailer'
-    | 'Retailer';
+  | 'Amazon'
+  | 'Flipkart'
+  | 'Store Catalog'
+  | 'Local Stores'
+  | 'External Retailer'
+  | 'Retailer';
   retailerName: string;
   retailerBadgeLabel?: string;
   isExternalRetailerListing?: boolean;
@@ -177,12 +177,12 @@ export interface ChatTurnMessage {
   id: string;
   role: 'user' | 'assistant';
   agentLabel?:
-    | 'Preference Agent'
-    | 'Deal Hunter'
-    | 'Negotiator'
-    | 'Adaptive Negotiator'
-    | 'Hindsight Deal DNA'
-    | 'Memory Intelligence';
+  | 'Preference Agent'
+  | 'Deal Hunter'
+  | 'Negotiator'
+  | 'Adaptive Negotiator'
+  | 'Hindsight Deal DNA'
+  | 'Memory Intelligence';
   timestamp: string;
   text: string;
   bulletPoints?: string[];
@@ -897,8 +897,8 @@ export class PreferenceAgent {
           lower.includes('all brands') ||
           lower.includes('anything under') ||
           isCategoryShift
-        ? []
-        : previous?.preferredBrands || [];
+          ? []
+          : previous?.preferredBrands || [];
 
     // Extract required features & minSpecs
     const features: string[] = previous && !isCategoryShift ? [...previous.requiredFeatures] : [];
@@ -1473,8 +1473,8 @@ export class DealHunterAgent {
           feedSourcesQueried: Array.isArray(data.feedSourcesQueried)
             ? data.feedSourcesQueried
             : isLive
-            ? ['SerpAPI Google Shopping Engine (gl=in)', 'Amazon.in Verified Store', 'Flipkart Verified Store']
-            : ['Amazon.in Fallback Catalog', 'Flipkart Catalog Fallback', 'Croma Fallback Catalog'],
+              ? ['SerpAPI Google Shopping Engine (gl=in)', 'Amazon.in Verified Store', 'Flipkart Verified Store']
+              : ['Amazon.in Fallback Catalog', 'Flipkart Catalog Fallback', 'Croma Fallback Catalog'],
         };
       }
     } catch {
@@ -2034,13 +2034,13 @@ export class DealHunterAgent {
       suggestedBudgetExpansions,
       lowestVerifiedPrice: cheapestCandidate
         ? {
-            price: cheapestCandidate.product.listPrice,
-            productName: cheapestCandidate.product.name,
-            source: cheapestCandidate.retailerName,
-            url: cheapestCandidate.retailerUrl,
-            isNegotiable: cheapestCandidate.eligibleForNegotiation,
-            productId: cheapestCandidate.product.id,
-          }
+          price: cheapestCandidate.product.listPrice,
+          productName: cheapestCandidate.product.name,
+          source: cheapestCandidate.retailerName,
+          url: cheapestCandidate.retailerUrl,
+          isNegotiable: cheapestCandidate.eligibleForNegotiation,
+          productId: cheapestCandidate.product.id,
+        }
         : undefined,
       multiRetailerComparisons,
     };
@@ -2087,22 +2087,20 @@ export class DealHunterAgent {
         'en-IN'
       )} in the internal DealMate database.\n\nDeal Hunter activated Fallback Search across connected external product feeds (${externalFeedSourcesQueried.join(
         ', '
-      )}) and found ${
-        finalCandidates.length
-      } options (including matches between ₹${minAbove.toLocaleString(
-        'en-IN'
-      )} and ₹${maxAbove.toLocaleString(
-        'en-IN'
-      )} and feature-compatible alternatives within ₹${prefs.budget.toLocaleString(
-        'en-IN'
-      )}). All external items are marked as "Retailer" listings with a direct "View Product" redirect.`;
+      )}) and found ${finalCandidates.length
+        } options (including matches between ₹${minAbove.toLocaleString(
+          'en-IN'
+        )} and ₹${maxAbove.toLocaleString(
+          'en-IN'
+        )} and feature-compatible alternatives within ₹${prefs.budget.toLocaleString(
+          'en-IN'
+        )}). All external items are marked as "Retailer" listings with a direct "View Product" redirect.`;
     } else {
-      summaryText = `Found ${exactMatches.length} exact ${
-        exactMatches.length === 1 ? 'match' : 'matches'
-      } under ₹${prefs.budget.toLocaleString('en-IN')} and ${Math.max(
-        0,
-        finalCandidates.length - exactMatches.length
-      )} additional alternatives across DealMate stores and external retailers.`;
+      summaryText = `Found ${exactMatches.length} exact ${exactMatches.length === 1 ? 'match' : 'matches'
+        } under ₹${prefs.budget.toLocaleString('en-IN')} and ${Math.max(
+          0,
+          finalCandidates.length - exactMatches.length
+        )} additional alternatives across DealMate stores and external retailers.`;
     }
 
     return {
@@ -2149,21 +2147,17 @@ export class NegotiatorAgent {
     let summaryText = '';
     if (eligibleCandidates.length > 0 && externalOnly.length > 0) {
       const intoBudgetCount = eligibleCandidates.filter((c) => c.potentiallyWithinBudget).length;
-      summaryText = `${eligibleCandidates.length} DealMate Store ${
-        eligibleCandidates.length === 1 ? 'listing has' : 'listings have'
-      } live AI negotiation enabled${
-        intoBudgetCount > 0
+      summaryText = `${eligibleCandidates.length} DealMate Store ${eligibleCandidates.length === 1 ? 'listing has' : 'listings have'
+        } live AI negotiation enabled${intoBudgetCount > 0
           ? ` (${intoBudgetCount} potentially within your ₹${prefs.budget.toLocaleString(
-              'en-IN'
-            )} budget through negotiation)`
+            'en-IN'
+          )} budget through negotiation)`
           : ''
-      }. The remaining ${externalOnly.length} external retailer ${
-        externalOnly.length === 1 ? 'listing is' : 'listings are'
-      } discovery-only — click "View Product →" to visit the retailer's website directly.`;
+        }. The remaining ${externalOnly.length} external retailer ${externalOnly.length === 1 ? 'listing is' : 'listings are'
+        } discovery-only — click "View Product →" to visit the retailer's website directly.`;
     } else if (eligibleCandidates.length > 0) {
-      summaryText = `${eligibleCandidates.length} DealMate Store ${
-        eligibleCandidates.length === 1 ? 'listing is' : 'listings are'
-      } eligible for bounded AI price negotiation. Click "Negotiate" to start the Buyer AI ↔ Seller AI exchange.`;
+      summaryText = `${eligibleCandidates.length} DealMate Store ${eligibleCandidates.length === 1 ? 'listing is' : 'listings are'
+        } eligible for bounded AI price negotiation. Click "Negotiate" to start the Buyer AI ↔ Seller AI exchange.`;
     } else {
       summaryText = `All ${candidates.length} discovered options for this search come from external online retailers without a DealMate negotiation integration. You can compare their verified prices above and click "View Product →" to open the retailer's website, or ask me to search DealMate stores for a negotiable alternative.`;
     }
