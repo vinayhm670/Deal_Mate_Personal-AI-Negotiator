@@ -60,6 +60,16 @@ const Hero3DVisual: React.FC<{
   const [activeProductIdx, setActiveProductIdx] = useState(0);
   const [activeStageIdx, setActiveStageIdx] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(typeof window !== 'undefined' && window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const featuredProducts = PRODUCTS.slice(0, 3);
   const currentProduct = featuredProducts[activeProductIdx] || PRODUCTS[0];
@@ -163,24 +173,26 @@ const Hero3DVisual: React.FC<{
     <div
       ref={containerRef}
       onMouseEnter={() => setIsPaused(true)}
-      onMouseMove={handleMouseMove}
+      onMouseMove={isMobile ? undefined : handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full py-2 sm:py-4 flex items-center justify-center select-none"
-      style={{ perspective: '1200px' }}
+      className="relative w-full py-1 sm:py-4 flex items-center justify-center select-none overflow-x-hidden"
+      style={{ perspective: isMobile ? undefined : '1200px' }}
     >
       {/* Ambient 3D Glow */}
-      <div className="absolute inset-2 rounded-full bg-gradient-to-tr from-cyan-500/20 via-blue-600/15 to-emerald-500/20 blur-3xl pointer-events-none" />
+      <div className="absolute inset-1 sm:inset-2 rounded-full bg-gradient-to-tr from-cyan-500/20 via-blue-600/15 to-emerald-500/20 blur-3xl pointer-events-none" />
 
       {/* 3D Interactive Automatic Sliding Negotiation Card */}
       <div
-        className={`relative w-full max-w-[480px] rounded-3xl border p-4 sm:p-6 shadow-2xl transition-transform duration-200 ease-out space-y-4 ${
+        className={`relative w-full max-w-[480px] rounded-2xl sm:rounded-3xl border p-3.5 sm:p-6 shadow-2xl transition-transform duration-200 ease-out space-y-3.5 sm:space-y-4 ${
           isLight
             ? 'bg-white/95 border-slate-200 text-slate-900 shadow-slate-200/90'
             : 'bg-[#0B101D]/95 border-slate-800 text-white shadow-black/70'
         }`}
         style={{
-          transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
-          transformStyle: 'preserve-3d',
+          transform: isMobile
+            ? 'none'
+            : `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+          transformStyle: isMobile ? undefined : 'preserve-3d',
         }}
       >
         {/* Top Header + Product Switcher Dots */}
@@ -343,7 +355,7 @@ const Hero3DVisual: React.FC<{
           </div>
 
           {/* Interactive Stage Scrubber Pills */}
-          <div className="grid grid-cols-4 gap-1.5 pt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-2">
             {stages.map((st, idx) => {
               const isCurrent = idx === activeStageIdx;
               return (
@@ -477,7 +489,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
   return (
     <div className="space-y-14 sm:space-y-20 pb-10">
       {/* 1. CINEMATIC 3D HERO SECTION (Responsive on both Desktop & Mobile) */}
-      <section className="relative pt-2 sm:pt-4 lg:py-8">
+      <section className="relative pt-2 sm:pt-4 lg:py-8 overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
           {/* Left Column: Headline, Search & Primary CTAs */}
           <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-left">
@@ -676,7 +688,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
 
             {/* Key Platform KPIs */}
             <div
-              className={`grid grid-cols-3 gap-4 pt-4 border-t max-w-lg ${
+              className={`grid grid-cols-3 gap-2 sm:gap-4 pt-4 border-t max-w-lg ${
                 theme.isLight ? 'border-slate-200' : 'border-slate-800'
               }`}
             >
@@ -706,7 +718,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
           </div>
 
           {/* Right Column: Interactive 3D Showcase with Automatic Sliding Negotiation Bar */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 overflow-hidden">
             <Hero3DVisual
               isLight={theme.isLight}
               primaryAccentHex={theme.primaryAccentHex}

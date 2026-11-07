@@ -21,6 +21,8 @@ import {
   VolumeX,
   LogOut,
   Layers,
+  Brain,
+  Database,
 } from 'lucide-react';
 import { ActiveNavTab } from '../Header';
 import { ThemeId, ThemeConfig } from '../../../types/theme';
@@ -45,6 +47,9 @@ interface MobileNavigationProps {
   onOpenAuthModal?: (route?: AuthRoutePath) => void;
   onSignOut?: () => void;
   totalPlatformSavings?: number;
+  onOpenMemoryIntelligence?: () => void;
+  onToggleDiwali?: () => void;
+  onOpenSupabaseModal?: () => void;
 }
 
 export const MobileNavigation: React.FC<MobileNavigationProps> = ({
@@ -62,6 +67,9 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({
   onOpenAuthModal,
   onSignOut,
   totalPlatformSavings = 18420,
+  onOpenMemoryIntelligence,
+  onToggleDiwali,
+  onOpenSupabaseModal,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(soundEffects.enabled);
@@ -205,6 +213,48 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({
       : userMainItems;
 
   const quickAccessItems = [
+    ...(onOpenMemoryIntelligence
+      ? [
+          {
+            key: 'deal-dna',
+            label: 'Deal DNA & Persistent Memory',
+            subtitle: 'Vectorize Hindsight memory dashboard',
+            icon: <Brain className="w-4 h-4 text-indigo-400" />,
+            action: () => {
+              onOpenMemoryIntelligence();
+              setIsOpen(false);
+            },
+          },
+        ]
+      : []),
+    ...(onToggleDiwali
+      ? [
+          {
+            key: 'diwali-celebration',
+            label: 'Diwali Dhamaka Celebration',
+            subtitle: 'Interactive fireworks & crackers',
+            icon: <span className="text-sm">🪔</span>,
+            action: () => {
+              onToggleDiwali();
+              setIsOpen(false);
+            },
+          },
+        ]
+      : []),
+    ...(onOpenSupabaseModal
+      ? [
+          {
+            key: 'supabase-config',
+            label: 'Supabase Database Config',
+            subtitle: 'Cloud sync & schema inspection',
+            icon: <Database className="w-4 h-4 text-emerald-400" />,
+            action: () => {
+              onOpenSupabaseModal();
+              setIsOpen(false);
+            },
+          },
+        ]
+      : []),
     {
       key: 'shopper-login',
       label: 'Shopper Login',

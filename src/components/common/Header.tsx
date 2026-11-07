@@ -101,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
           : 'bg-[#0E1114]/90 border-b border-[#242C35] text-[#F2F5F7]'
       }`}
     >
-      <div className="max-w-7xl h-full mx-auto px-4 sm:px-6 lg:px-6 flex items-center justify-between gap-2.5 lg:gap-3">
+      <div className="max-w-7xl h-full mx-auto px-3 sm:px-6 lg:px-6 flex items-center justify-between gap-2 lg:gap-3 overflow-hidden">
         {/* 1. DealMate Brand Logo (Left) */}
         <button
           type="button"
@@ -390,26 +390,31 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* 4. Mobile Quick Auth + Hamburger Navigation (<= 767px) */}
-        <div className="flex md:hidden items-center gap-1.5 shrink-0">
+        <div className="flex md:hidden items-center gap-1 shrink-0">
+          {/* Deal DNA Quick Pill on Mobile - icon only to save space */}
+          {onOpenMemoryIntelligence && (
+            <button
+              type="button"
+              onClick={() => {
+                soundEffects.playBlip();
+                onOpenMemoryIntelligence();
+              }}
+              title="Deal DNA & Persistent Memory"
+              className="hidden min-[400px]:flex w-8 h-8 rounded-lg border border-indigo-500/40 bg-indigo-950/70 text-indigo-300 items-center justify-center cursor-pointer shrink-0"
+            >
+              <Brain className="w-3.5 h-3.5 text-indigo-400" />
+            </button>
+          )}
+
+          {/* Quick Action Button for Tablets/Larger Mobile Screens (>= 640px) */}
           {onToggleDiwali && (
             <button
               type="button"
               onClick={onToggleDiwali}
               title="Diwali Special"
-              className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center text-sm"
+              className="hidden sm:flex w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 items-center justify-center text-sm shrink-0"
             >
               🪔
-            </button>
-          )}
-
-          {onOpenSupabaseModal && (
-            <button
-              type="button"
-              onClick={onOpenSupabaseModal}
-              title="Supabase"
-              className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center"
-            >
-              <Database className="w-4 h-4" />
             </button>
           )}
 
@@ -417,30 +422,20 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onOpenAccount('profile')}
-              className="h-8 px-2.5 rounded-lg bg-blue-600 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+              className="h-8 px-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold flex items-center gap-1 cursor-pointer shrink-0"
             >
-              <span className="w-4 h-4 rounded-full bg-white/20 text-[10px] font-bold flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-white/20 text-[10px] font-bold flex items-center justify-center shrink-0">
                 {currentUser.displayName.charAt(0).toUpperCase()}
               </span>
-              <span className="max-w-[72px] truncate">{currentUser.displayName.split(' ')[0]}</span>
+              <span className="max-w-[48px] truncate text-[11px] hidden min-[400px]:inline">{currentUser.displayName.split(' ')[0]}</span>
+            </button>          ) : (
+            <button
+              type="button"
+              onClick={() => onOpenAuthModal?.('/auth')}
+              className="h-8 px-2 rounded-lg border border-slate-700 bg-slate-900 text-white text-xs font-medium cursor-pointer shrink-0"
+            >
+              Sign In
             </button>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => onOpenAuthModal?.('/auth')}
-                className="h-8 px-2.5 rounded-lg border border-slate-700 bg-slate-900 text-white text-xs font-medium cursor-pointer"
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={() => onOpenAuthModal?.('/auth/signup')}
-                className="h-8 px-2.5 rounded-lg bg-blue-600 text-white text-xs font-semibold cursor-pointer"
-              >
-                Join
-              </button>
-            </>
           )}
 
           <MobileNavigation
@@ -458,6 +453,9 @@ export const Header: React.FC<HeaderProps> = ({
             onOpenAuthModal={onOpenAuthModal}
             onSignOut={onSignOut}
             totalPlatformSavings={totalPlatformSavings}
+            onOpenMemoryIntelligence={onOpenMemoryIntelligence}
+            onToggleDiwali={onToggleDiwali}
+            onOpenSupabaseModal={onOpenSupabaseModal}
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Volume2, VolumeX, Sparkles, X, Rocket, Flame } from 'lucide-react';
+import { Sparkles, X, Rocket, Flame } from 'lucide-react';
 
 interface SparkTrail {
   x: number;
@@ -60,133 +60,14 @@ const PALETTES = [
   ['#FF9100', '#FFAB40', '#D500F9', '#E040FB', '#FFD700'],
 ];
 
-// High-fidelity Web Audio API for Realistic Diwali Sky Shots
+// Silent Fireworks Engine (audio completely removed per user instruction)
 class RealisticFireworkAudio {
-  private ctx: AudioContext | null = null;
-  public enabled: boolean = true;
-
-  private initCtx() {
-    if (!this.ctx) {
-      const AudioCtx =
-        window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (AudioCtx) {
-        this.ctx = new AudioCtx();
-      }
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-  }
-
-  // Realistic ascending rocket whistle/whoosh
+  public enabled: boolean = false;
   playLaunch() {
-    if (!this.enabled) return;
-    try {
-      this.initCtx();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      const filter = this.ctx.createBiquadFilter();
-
-      osc.type = 'sawtooth';
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(450, now);
-      filter.frequency.exponentialRampToValueAtTime(1400, now + 0.55);
-      filter.Q.setValueAtTime(3.5, now);
-
-      osc.frequency.setValueAtTime(380, now);
-      osc.frequency.exponentialRampToValueAtTime(1150, now + 0.55);
-
-      gain.gain.setValueAtTime(0.02, now);
-      gain.gain.linearRampToValueAtTime(0.045, now + 0.35);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
-
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.55);
-    } catch {
-      // Audio gesture required
-    }
+    // Sound removed - silent visual fireworks only
   }
-
-  // Realistic explosive air burst (Deep Sub-Bass Thump + Resonance + Crackle)
-  playBurst(shellType?: string) {
-    if (!this.enabled) return;
-    try {
-      this.initCtx();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-
-      // 1. Heavy resonant explosion thump
-      const subOsc = this.ctx.createOscillator();
-      const subGain = this.ctx.createGain();
-      subOsc.type = 'sine';
-      subOsc.frequency.setValueAtTime(160, now);
-      subOsc.frequency.exponentialRampToValueAtTime(32, now + 0.38);
-
-      subGain.gain.setValueAtTime(0.35, now);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
-
-      subOsc.connect(subGain);
-      subGain.connect(this.ctx.destination);
-      subOsc.start(now);
-      subOsc.stop(now + 0.38);
-
-      // 2. Realistic blast wave noise punch
-      const blastLen = this.ctx.sampleRate * 0.18;
-      const blastBuf = this.ctx.createBuffer(1, blastLen, this.ctx.sampleRate);
-      const blastData = blastBuf.getChannelData(0);
-      for (let i = 0; i < blastLen; i++) {
-        blastData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (blastLen * 0.15));
-      }
-      const blastSource = this.ctx.createBufferSource();
-      blastSource.buffer = blastBuf;
-      const blastFilter = this.ctx.createBiquadFilter();
-      blastFilter.type = 'lowpass';
-      blastFilter.frequency.setValueAtTime(800, now);
-      blastFilter.frequency.exponentialRampToValueAtTime(180, now + 0.18);
-
-      const blastGain = this.ctx.createGain();
-      blastGain.gain.setValueAtTime(0.2, now);
-      blastGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-
-      blastSource.connect(blastFilter);
-      blastFilter.connect(blastGain);
-      blastGain.connect(this.ctx.destination);
-      blastSource.start(now);
-
-      // 3. Secondary sizzling sparks & crackle
-      const crackleLen = this.ctx.sampleRate * 0.45;
-      const crackleBuf = this.ctx.createBuffer(1, crackleLen, this.ctx.sampleRate);
-      const crackleData = crackleBuf.getChannelData(0);
-      for (let i = 0; i < crackleLen; i++) {
-        // Intermittent popping sparks
-        const pop = Math.random() > 0.94 ? (Math.random() * 2 - 1) * 1.5 : (Math.random() * 2 - 1) * 0.1;
-        crackleData[i] = pop * Math.exp(-i / (crackleLen * 0.4));
-      }
-      const crackleSource = this.ctx.createBufferSource();
-      crackleSource.buffer = crackleBuf;
-      const crackleFilter = this.ctx.createBiquadFilter();
-      crackleFilter.type = 'bandpass';
-      crackleFilter.frequency.setValueAtTime(2400, now);
-
-      const crackleGain = this.ctx.createGain();
-      crackleGain.gain.setValueAtTime(shellType === 'chrysanthemum' ? 0.18 : 0.08, now + 0.05);
-      crackleGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
-
-      crackleSource.connect(crackleFilter);
-      crackleFilter.connect(crackleGain);
-      crackleGain.connect(this.ctx.destination);
-      crackleSource.start(now + 0.05);
-    } catch {
-      // Audio error ignore
-    }
+  playBurst(_shellType?: string) {
+    // Sound removed - silent visual fireworks only
   }
 }
 
@@ -202,17 +83,12 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
   onToggleDiwaliMode,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isChipVisible, setIsChipVisible] = useState<boolean>(true);
 
   const rocketsRef = useRef<RocketShell[]>([]);
   const particlesRef = useRef<StarburstParticle[]>([]);
   const flashesRef = useRef<FlashWave[]>([]);
   const lastLaunchTimeRef = useRef<number>(0);
-
-  useEffect(() => {
-    audioFX.enabled = soundEnabled;
-  }, [soundEnabled]);
 
   // Create high-realism spherical starburst with cascading shimmer trails
   const createRealisticSkyBurst = useCallback((x: number, y: number, shellType: RocketShell['shellType'], customColor?: string) => {
@@ -514,20 +390,20 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
       />
 
       {/* Clean Diwali Announcement Bar */}
-      <div className="relative z-40 bg-gradient-to-r from-amber-600/90 via-orange-600/90 to-amber-500/90 text-amber-50 px-3 py-1.5 text-xs font-medium shadow-xs border-b border-amber-400/30 flex items-center justify-between">
-        <div className="container mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-base select-none">🪔</span>
-            <span className="font-bold text-amber-200">Diwali Dhamaka Fest:</span>
-            <span className="hidden sm:inline text-amber-100">
+      <div className="relative z-40 bg-gradient-to-r from-amber-600/90 via-orange-600/90 to-amber-500/90 text-amber-50 px-2 sm:px-4 py-1.5 text-xs font-medium shadow-xs border-b border-amber-400/30 flex items-center justify-between">
+        <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-2 px-1 sm:px-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span className="text-base select-none shrink-0">🪔</span>
+            <span className="font-bold text-amber-200 shrink-0">Diwali Dhamaka:</span>
+            <span className="hidden sm:inline text-amber-100 truncate">
               Live realistic Diwali sky shots & AI-negotiated festive discounts!
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => launchRocket()}
-              className="px-2.5 py-0.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold transition-all shadow-xs flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-0.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold transition-all shadow-xs flex items-center gap-1 cursor-pointer shrink-0"
             >
               <Rocket className="w-3 h-3" />
               <span>Launch Sky Shot</span>
@@ -536,7 +412,7 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
             {onToggleDiwaliMode && (
               <button
                 onClick={onToggleDiwaliMode}
-                className="px-2 py-0.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-[11px] font-semibold transition-all cursor-pointer"
+                className="px-2 py-0.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-[11px] font-semibold transition-all cursor-pointer shrink-0"
               >
                 {isDiwaliMode ? 'Diwali Active' : 'Enable'}
               </button>
@@ -545,27 +421,17 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
         </div>
       </div>
 
-      {/* Discreet Minimal Floating Controller Chip */}
+      {/* Discreet Minimal Floating Controller Chip (hidden on small mobile screens to prevent screen obstruction) */}
       {isChipVisible && (
-        <div className="diwali-chip fixed bottom-5 left-5 z-40 flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900/95 border border-amber-500/40 text-white shadow-xl backdrop-blur-md text-xs select-none">
+        <div className="diwali-chip hidden sm:flex fixed bottom-5 left-5 z-40 items-center gap-2 px-3 py-2 rounded-xl bg-slate-900/95 border border-amber-500/40 text-white shadow-xl backdrop-blur-md text-xs select-none">
           <span className="text-sm">🪔</span>
-          <span className="text-amber-300 font-semibold hidden sm:inline">Diwali Sky Shots</span>
+          <span className="text-amber-300 font-semibold">Diwali Sky Shots</span>
 
           <button
             onClick={() => launchRocket()}
             className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
           >
             <Rocket className="w-3 h-3" /> Shoot
-          </button>
-
-          <button
-            onClick={() => setSoundEnabled((prev) => !prev)}
-            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              soundEnabled ? 'bg-amber-500/20 text-amber-400' : 'text-slate-400 hover:text-white'
-            }`}
-            title="Toggle Realistic Firecracker Audio"
-          >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
           </button>
 
           <button

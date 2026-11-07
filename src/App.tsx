@@ -1494,10 +1494,10 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 container w-full max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-16 relative z-10">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6 pb-20 relative z-10 min-w-0 overflow-x-hidden">
         {/* 1. HOMEPAGE: DEALMATE 3D CINEMATIC HERO */}
         {currentTab === 'home' && (
-          <section className="container w-full max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto">
+          <section className="w-full max-w-7xl mx-auto min-w-0">
             <LandingHero
               onStartNegotiating={handleStartNegotiatingTab}
               onLaunchDemo={handleLaunchEarbudsDemo}
@@ -1518,7 +1518,7 @@ export default function App() {
 
         {/* 2. AI DEAL ANALYZER (/analyzer: Real-Time All-Category Quality, Seller & Risk Evaluation) */}
         {currentTab === 'ai_shopping' && (
-          <section className="container w-full max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto">
+          <section className="w-full max-w-7xl mx-auto min-w-0">
             <DealAnalyzerView
               initialProduct={analyzerProduct || products[0]}
               initialNegotiatedPrice={analyzerNegotiatedPrice}
@@ -1537,7 +1537,7 @@ export default function App() {
 
         {/* 3. STORE OWNER DASHBOARD (/seller) */}
         {currentTab === 'store_owner_portal' && (
-          <section className="container w-full max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto">
+          <section className="w-full max-w-7xl mx-auto min-w-0">
             <StoreOwnerPortal
               currentUser={currentUser}
               products={products}
@@ -1561,7 +1561,7 @@ export default function App() {
 
         {/* 4. CATEGORIES VIEW */}
         {currentTab === 'categories' && (
-          <section className="container w-full max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-6xl mx-auto">
+          <section className="w-full max-w-6xl mx-auto min-w-0">
             <CategoriesView
               products={products}
               onSelectCategory={(catId) => {
@@ -1589,7 +1589,7 @@ export default function App() {
 
         {/* 5. LOCAL STORES DISCOVERY + GOOGLE MAPS GROUNDING */}
         {currentTab === 'stores' && (
-          <section className="container w-full max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto">
+          <section className="w-full max-w-7xl mx-auto min-w-0">
             <LocalStoresView
               stores={stores}
               onSelectStoreProducts={() => navigateTab('ai_shopping')}
@@ -1599,7 +1599,7 @@ export default function App() {
 
         {/* 6. CONVERSATIONAL MULTI-AGENT SHOPPING & NEGOTIATION ASSISTANT */}
         {currentTab === 'negotiator' && (
-          <section className="container w-full max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto">
+          <section className="w-full max-w-7xl mx-auto min-w-0">
             <StreamlinedNegotiator
               products={products}
               categorySettings={categorySettings}
@@ -1625,14 +1625,14 @@ export default function App() {
 
         {/* 7. FOR BUSINESSES */}
         {currentTab === 'for_business' && (
-          <section className="container w-full max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-6xl mx-auto">
+          <section className="w-full max-w-6xl mx-auto min-w-0">
             <ForBusinessView />
           </section>
         )}
 
         {/* 8. ORDERS */}
         {currentTab === 'orders' && (
-          <section className="container w-full max-w-full sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto">
+          <section className="w-full max-w-6xl mx-auto min-w-0">
             <OrdersView
               orders={orders}
               onStartNewNegotiation={() => navigateTab('ai_shopping')}
@@ -1643,7 +1643,7 @@ export default function App() {
 
         {/* 9. ADMIN DASHBOARD (/admin) */}
         {currentTab === 'admin' && (
-          <section className="container w-full max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto">
+          <section className="w-full max-w-7xl mx-auto min-w-0">
             <AdminDashboard
               products={products}
               stores={stores}
