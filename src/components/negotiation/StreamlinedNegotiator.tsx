@@ -437,7 +437,7 @@ export const StreamlinedNegotiator: React.FC<StreamlinedNegotiatorProps> = ({
   // Collapsible Voice Settings Popover State (not permanently visible)
   const [isVoiceSettingsOpen, setIsVoiceSettingsOpen] = useState<boolean>(false);
   const [voiceEnabled, setVoiceEnabled] = useState<boolean>(true);
-  const [autoPlayResponses, setAutoPlayResponses] = useState<boolean>(false);
+  const [autoPlayResponses, setAutoPlayResponses] = useState<boolean>(true);
   const [speechRate, setSpeechRate] = useState<number>(1.0);
   const [micPermissionState, setMicPermissionState] = useState<
     'prompt' | 'granted' | 'denied'
@@ -453,6 +453,18 @@ export const StreamlinedNegotiator: React.FC<StreamlinedNegotiatorProps> = ({
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [conversationHistory.length, isPipelineRunning]);
+
+  // Auto-speak latest assistant reply when conversation updates
+  const lastSpokenMsgIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!autoPlayResponses || !voiceEnabled) return;
+    if (conversationHistory.length === 0) return;
+    const latest = conversationHistory[conversationHistory.length - 1];
+    if (latest && latest.role === 'assistant' && latest.id !== lastSpokenMsgIdRef.current) {
+      lastSpokenMsgIdRef.current = latest.id;
+      handlePlaySpeech(latest.id, latest.text);
+    }
+  }, [conversationHistory, autoPlayResponses, voiceEnabled]);
 
   // Clean up speech synthesis on unmount
   useEffect(() => {

@@ -26,7 +26,10 @@ import {
   Tag,
   X,
   Zap,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
+import { aiVoice } from '../../services/aiVoiceService';
 
 interface AIShoppingAgentProps {
   products: Product[];
@@ -103,7 +106,16 @@ export const AIShoppingAgent: React.FC<AIShoppingAgentProps> = ({
   const [visibleCount, setVisibleCount] = useState(8);
   const [isThinking, setIsThinking] = useState(false);
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState<boolean>(aiVoice.enabled);
+  const [isAiSpeaking, setIsAiSpeaking] = useState<boolean>(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const unsub = aiVoice.subscribe((speaking) => {
+      setIsAiSpeaking(speaking);
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     if (!initialQuery) return;
@@ -141,6 +153,9 @@ export const AIShoppingAgent: React.FC<AIShoppingAgentProps> = ({
 
   const addMessage = (message: Omit<Message, 'id' | 'timestamp'>) => {
     setMessages((prev) => [...prev, { ...message, id: `${Date.now()}-${Math.random()}`, timestamp: now() }]);
+    if (message.sender === 'assistant' && isVoiceEnabled) {
+      aiVoice.speak(message.text);
+    }
   };
 
   const selectProduct = (product: Product) => {
@@ -246,10 +261,33 @@ export const AIShoppingAgent: React.FC<AIShoppingAgentProps> = ({
               <div className="dm-agent-icon"><Bot className="h-5 w-5" /></div>
               <div className="min-w-0">
                 <h1>AI Negotiator</h1>
-                <p><span className="dm-live-dot" /> Context-aware shopping assistant</p>
+                <p>
+                  <span className="dm-live-dot" />{' '}
+                  {isAiSpeaking ? (
+                    <span className="text-emerald-400 font-semibold animate-pulse">AI Speaking aloud...</span>
+                  ) : (
+                    'Context-aware shopping assistant'
+                  )}
+                </p>
               </div>
             </div>
-            <button className="dm-icon-button" onClick={resetConversation} title="Reset conversation"><RotateCcw className="h-4 w-4" /></button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                className={`dm-icon-button flex items-center gap-1 px-2 text-xs font-semibold ${
+                  isVoiceEnabled ? 'text-blue-400 border-blue-500/40 bg-blue-500/10' : 'text-slate-400'
+                }`}
+                onClick={() => {
+                  const next = aiVoice.toggle();
+                  setIsVoiceEnabled(next);
+                }}
+                title={isVoiceEnabled ? 'AI Voice Enabled (Click to Mute)' : 'AI Voice Muted (Click to Enable)'}
+              >
+                {isVoiceEnabled ? <Volume2 className="h-4 w-4 text-blue-400" /> : <VolumeX className="h-4 w-4" />}
+                <span className="hidden sm:inline text-[11px]">{isVoiceEnabled ? 'Voice On' : 'Voice Off'}</span>
+              </button>
+              <button className="dm-icon-button" onClick={resetConversation} title="Reset conversation"><RotateCcw className="h-4 w-4" /></button>
+            </div>
           </header>
 
           <div className="dm-chat-context">
@@ -302,7 +340,15 @@ export const AIShoppingAgent: React.FC<AIShoppingAgentProps> = ({
           </div>
 
           <form onSubmit={handleSubmit} className="dm-chat-input-wrap">
-            <button type="button" className="dm-icon-button" title="Voice assistant is available from the main app" aria-label="Voice assistant"><Mic className="h-4 w-4" /></button>
+            <button
+              type="button"
+              className="dm-icon-button"
+              onClick={() => onOpenVoiceModal?.()}
+              title="Speak to AI Voice Assistant"
+              aria-label="Voice assistant"
+            >
+              <Mic className="h-4 w-4 text-blue-400" />
+            </button>
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Ask about a product, feature, price, comparison, or negotiation…" />
             <button type="submit" className="dm-send-button" disabled={!query.trim()}><Send className="h-4 w-4" /></button>
           </form>
