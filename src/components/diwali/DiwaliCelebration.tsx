@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Volume2, VolumeX, Sparkles, X, Rocket } from 'lucide-react';
 
-interface Particle {
+interface Spark {
   x: number;
   y: number;
   vx: number;
@@ -11,7 +11,6 @@ interface Particle {
   color: string;
   size: number;
   flicker: boolean;
-  history: { x: number; y: number }[];
 }
 
 interface RocketShot {
@@ -21,21 +20,20 @@ interface RocketShot {
   vy: number;
   targetY: number;
   color: string;
-  trail: { x: number; y: number }[];
 }
 
-// Authentic Diwali aerial firecracker colors (gold, saffron, ruby, emerald, royal silver)
-const DIWALI_SHOT_COLORS = [
-  '#FFD700', // Imperial Gold
+// Warm Diwali festival sky colors: Gold, Amber, Saffron, Crimson, Emerald, White
+const DIWALI_COLORS = [
+  '#FFD700', // Bright Gold
   '#FFA500', // Saffron Amber
-  '#FF3366', // Ruby Red
-  '#00FF88', // Emerald Spark
-  '#FFDF00', // Glittering Yellow
-  '#00E5FF', // Cyan Starlight
+  '#FF4500', // Fiery Orange
+  '#FF1744', // Ruby Red
+  '#00E676', // Emerald Green
+  '#FFF59D', // Golden Yellow
   '#FFFFFF', // Diamond White
 ];
 
-// Clean synthesized Diwali sky shot audio
+// Clean sound synthesis for Diwali sky shots
 class SkyShotAudio {
   private ctx: AudioContext | null = null;
   public enabled: boolean = false;
@@ -52,7 +50,6 @@ class SkyShotAudio {
     }
   }
 
-  // Rocket launch whistle
   playLaunch() {
     if (!this.enabled) return;
     try {
@@ -63,22 +60,21 @@ class SkyShotAudio {
       const now = this.ctx.currentTime;
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(300, now);
-      osc.frequency.exponentialRampToValueAtTime(950, now + 0.35);
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(1000, now + 0.3);
 
-      gain.gain.setValueAtTime(0.03, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      gain.gain.setValueAtTime(0.02, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.35);
+      osc.stop(now + 0.3);
     } catch {
-      // Audio not permitted without user gesture
+      // Audio restricted without gesture
     }
   }
 
-  // Real Diwali sky burst pop & crackle
   playBurst() {
     if (!this.enabled) return;
     try {
@@ -86,38 +82,38 @@ class SkyShotAudio {
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
 
-      // Deep initial thud / boom
+      // Soft low thud
       const osc = this.ctx.createOscillator();
       const oscGain = this.ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(140, now);
-      osc.frequency.exponentialRampToValueAtTime(35, now + 0.28);
+      osc.frequency.setValueAtTime(130, now);
+      osc.frequency.exponentialRampToValueAtTime(30, now + 0.25);
 
-      oscGain.gain.setValueAtTime(0.15, now);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      oscGain.gain.setValueAtTime(0.12, now);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
 
       osc.connect(oscGain);
       oscGain.connect(this.ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.28);
+      osc.stop(now + 0.25);
 
-      // Crackle sizzle
-      const bufferSize = this.ctx.sampleRate * 0.2;
+      // Light crackle
+      const bufferSize = this.ctx.sampleRate * 0.15;
       const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
       }
 
       const noise = this.ctx.createBufferSource();
       noise.buffer = buffer;
       const filter = this.ctx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(2800, now);
+      filter.frequency.setValueAtTime(3000, now);
 
       const noiseGain = this.ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.08, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      noiseGain.gain.setValueAtTime(0.06, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
       noise.connect(filter);
       filter.connect(noiseGain);
@@ -144,7 +140,7 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
   const [soundEnabled, setSoundEnabled] = useState<boolean>(false);
   const [isChipVisible, setIsChipVisible] = useState<boolean>(true);
 
-  const particlesRef = useRef<Particle[]>([]);
+  const sparksRef = useRef<Spark[]>([]);
   const rocketsRef = useRef<RocketShot[]>([]);
   const lastAutoLaunchRef = useRef<number>(0);
 
@@ -152,28 +148,27 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
     audioFX.enabled = soundEnabled;
   }, [soundEnabled]);
 
-  // Classic Diwali Spherical Starburst
+  // Classic Diwali Spherical Starburst (pure circular glowing sparks, NO lines)
   const createSkyBurst = useCallback((x: number, y: number, color?: string) => {
-    const burstColor = color || DIWALI_SHOT_COLORS[Math.floor(Math.random() * DIWALI_SHOT_COLORS.length)];
+    const burstColor = color || DIWALI_COLORS[Math.floor(Math.random() * DIWALI_COLORS.length)];
     audioFX.playBurst();
 
-    // 45-60 particles radiating outward in a spherical firecracker bloom
-    const particleCount = 48;
-    for (let i = 0; i < particleCount; i++) {
-      const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.2;
-      const speed = Math.random() * 4.5 + 2.0;
+    // Symmetrical starburst
+    const sparkCount = 40;
+    for (let i = 0; i < sparkCount; i++) {
+      const angle = (Math.PI * 2 * i) / sparkCount + (Math.random() - 0.5) * 0.15;
+      const speed = Math.random() * 3.8 + 1.8;
 
-      particlesRef.current.push({
+      sparksRef.current.push({
         x,
         y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         alpha: 1,
-        decay: Math.random() * 0.016 + 0.012,
-        color: Math.random() > 0.3 ? burstColor : '#FFD700',
+        decay: Math.random() * 0.015 + 0.012,
+        color: Math.random() > 0.35 ? burstColor : '#FFD700',
         size: Math.random() * 2.2 + 1.2,
-        flicker: Math.random() > 0.4,
-        history: [],
+        flicker: Math.random() > 0.3,
       });
     }
   }, []);
@@ -184,22 +179,21 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
     const canvas = canvasRef.current;
 
     const startX = destX !== undefined ? destX : Math.random() * (canvas.width * 0.7) + canvas.width * 0.15;
-    const targetY = destY !== undefined ? destY : Math.random() * (canvas.height * 0.35) + canvas.height * 0.12;
-    const chosenColor = DIWALI_SHOT_COLORS[Math.floor(Math.random() * DIWALI_SHOT_COLORS.length)];
+    const targetY = destY !== undefined ? destY : Math.random() * (canvas.height * 0.35) + canvas.height * 0.1;
+    const chosenColor = DIWALI_COLORS[Math.floor(Math.random() * DIWALI_COLORS.length)];
 
     audioFX.playLaunch();
     rocketsRef.current.push({
       x: startX,
       y: canvas.height,
-      vx: (Math.random() - 0.5) * 1.2,
-      vy: -(Math.random() * 2.5 + 9.5),
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: -(Math.random() * 2.0 + 9.0),
       targetY,
       color: chosenColor,
-      trail: [],
     });
   }, []);
 
-  // Click anywhere on sky / background to shoot a rocket to that spot
+  // Click anywhere on sky / background to shoot a rocket
   useEffect(() => {
     const handlePointerDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -221,7 +215,7 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
     return () => window.removeEventListener('pointerdown', handlePointerDown);
   }, [launchRocketShot]);
 
-  // Main 60fps render loop
+  // Main Animation Loop: Pure dots and glowing sparks (zero connecting lines)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -240,83 +234,57 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
     const render = (time: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Gentle auto-launch every 3.5 seconds
-      if (time - lastAutoLaunchRef.current > 3500) {
+      // Gentle auto-launch every 4 seconds
+      if (time - lastAutoLaunchRef.current > 4000) {
         lastAutoLaunchRef.current = time;
         launchRocketShot();
       }
 
-      // 1. Render Rockets
+      // 1. Render Rockets (Small ascending golden sparks)
       for (let i = rocketsRef.current.length - 1; i >= 0; i--) {
         const r = rocketsRef.current[i];
-        r.trail.push({ x: r.x, y: r.y });
-        if (r.trail.length > 6) r.trail.shift();
 
-        // Rocket golden spark trail
-        ctx.strokeStyle = 'rgba(255, 200, 80, 0.45)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        for (let t = 0; t < r.trail.length; t++) {
-          const pt = r.trail[t];
-          if (t === 0) ctx.moveTo(pt.x, pt.y);
-          else ctx.lineTo(pt.x, pt.y);
-        }
-        ctx.stroke();
-
-        // Rocket head spark
+        // Draw small rocket spark head
+        ctx.save();
         ctx.fillStyle = '#FFF5B8';
         ctx.shadowColor = r.color;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.arc(r.x, r.y, 2.5, 0, Math.PI * 2);
         ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.restore();
 
         r.x += r.vx;
         r.y += r.vy;
 
-        // Explode at target height
+        // Explode into starburst at apex
         if (r.y <= r.targetY || r.vy >= 0) {
           createSkyBurst(r.x, r.y, r.color);
           rocketsRef.current.splice(i, 1);
         }
       }
 
-      // 2. Render Starburst Firecracker Particles
-      for (let i = particlesRef.current.length - 1; i >= 0; i--) {
-        const p = particlesRef.current[i];
-        p.history.push({ x: p.x, y: p.y });
-        if (p.history.length > 3) p.history.shift();
-
+      // 2. Render Starburst Sparks (Pure glowing particles, zero lines)
+      for (let i = sparksRef.current.length - 1; i >= 0; i--) {
+        const p = sparksRef.current[i];
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.06; // Realistic gravity
-        p.vx *= 0.982; // Air resistance
-        p.vy *= 0.982;
+        p.vy += 0.055; // Gentle downward gravity
+        p.vx *= 0.985; // Air drag
+        p.vy *= 0.985;
         p.alpha -= p.decay;
 
         if (p.alpha <= 0) {
-          particlesRef.current.splice(i, 1);
+          sparksRef.current.splice(i, 1);
           continue;
         }
 
-        // Draw particle tail
-        if (p.history.length > 1) {
-          ctx.strokeStyle = p.color;
-          ctx.globalAlpha = p.alpha * 0.5;
-          ctx.lineWidth = p.size * 0.8;
-          ctx.beginPath();
-          ctx.moveTo(p.history[0].x, p.history[0].y);
-          ctx.lineTo(p.x, p.y);
-          ctx.stroke();
-        }
-
-        // Draw glowing particle
+        // Draw individual spark dot with soft festive glow
         ctx.save();
-        ctx.globalAlpha = p.flicker ? p.alpha * (0.6 + Math.random() * 0.4) : p.alpha;
+        ctx.globalAlpha = p.flicker ? Math.max(0, p.alpha * (0.6 + Math.random() * 0.4)) : p.alpha;
         ctx.fillStyle = p.color;
         ctx.shadowColor = p.color;
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = 8;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
@@ -336,21 +304,20 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
 
   return (
     <>
-      {/* Background Aerial Firecracker Canvas */}
+      {/* Clean Sky Canvas (Zero Lines, 100% Transparent, Pointer-Events None) */}
       <canvas
         ref={canvasRef}
         className="fixed inset-0 pointer-events-none z-20"
-        style={{ mixBlendMode: 'screen' }}
       />
 
-      {/* Clean, Simple Festive Top Banner */}
-      <div className="relative z-40 bg-gradient-to-r from-amber-600/80 via-orange-600/80 to-amber-500/80 backdrop-blur-md text-amber-50 px-3 py-1.5 text-xs font-medium shadow-xs border-b border-amber-400/30 flex items-center justify-between">
+      {/* Clean Festive Top Announcement Bar */}
+      <div className="relative z-40 bg-gradient-to-r from-amber-600/90 via-orange-600/90 to-amber-500/90 text-amber-50 px-3 py-1.5 text-xs font-medium shadow-xs border-b border-amber-400/30 flex items-center justify-between">
         <div className="container mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="text-base select-none">🪔</span>
-            <span className="font-bold text-amber-200">Diwali Special Deals:</span>
+            <span className="font-bold text-amber-200">Diwali Festive Deals:</span>
             <span className="hidden sm:inline text-amber-100">
-              Enjoy extra festive discounts & AI bargains across all stores!
+              Exclusive AI-negotiated festive discounts across all stores!
             </span>
           </div>
 
@@ -360,7 +327,7 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
               className="px-2.5 py-0.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold transition-all shadow-xs flex items-center gap-1 cursor-pointer"
             >
               <Rocket className="w-3 h-3" />
-              <span>Shoot Firecracker</span>
+              <span>Launch Rocket</span>
             </button>
 
             {onToggleDiwaliMode && (
@@ -375,7 +342,7 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
         </div>
       </div>
 
-      {/* Discreet, Simple Floating Firecracker Chip (Bottom Right) */}
+      {/* Discreet, Simple Floating Chip (Bottom Left) */}
       {isChipVisible && (
         <div className="diwali-control-chip fixed bottom-5 left-5 z-40 flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700/80 text-white shadow-xl backdrop-blur-md text-xs select-none">
           <span className="text-sm">🪔</span>
@@ -383,7 +350,7 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
 
           <button
             onClick={() => launchRocketShot()}
-            className="px-2 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+            className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
           >
             <Rocket className="w-3 h-3" /> Shoot
           </button>

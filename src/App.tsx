@@ -1419,13 +1419,6 @@ export default function App() {
       } ${theme.bodyGradient}`}
       style={{ backgroundColor: theme.bgHex }}
     >
-      {/* Clean Subtle Background Ambient Light */}
-      <div
-        className={`fixed -top-40 left-1/4 w-[600px] h-[350px] rounded-full blur-[140px] pointer-events-none transition-all duration-700 bg-gradient-to-br ${
-          theme.isLight ? 'opacity-15' : 'opacity-20'
-        } ${theme.ambientMesh}`}
-      />
-
       {/* Live Interactive Diwali Celebration & Firecrackers */}
       {isDiwaliMode && (
         <DiwaliCelebration
