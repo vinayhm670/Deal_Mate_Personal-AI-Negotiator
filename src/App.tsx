@@ -1419,15 +1419,10 @@ export default function App() {
       } ${theme.bodyGradient}`}
       style={{ backgroundColor: theme.bgHex }}
     >
-      {/* Dynamic Background Ambient Light Gradients */}
+      {/* Clean Subtle Background Ambient Light */}
       <div
-        className={`fixed -top-40 left-1/4 w-[750px] h-[480px] rounded-full blur-[160px] pointer-events-none transition-all duration-700 bg-gradient-to-br ${
-          theme.isLight ? 'opacity-25' : 'opacity-40'
-        } ${theme.ambientMesh}`}
-      />
-      <div
-        className={`fixed -bottom-40 right-1/4 w-[750px] h-[480px] rounded-full blur-[160px] pointer-events-none transition-all duration-700 bg-gradient-to-tl ${
-          theme.isLight ? 'opacity-20' : 'opacity-30'
+        className={`fixed -top-40 left-1/4 w-[600px] h-[350px] rounded-full blur-[140px] pointer-events-none transition-all duration-700 bg-gradient-to-br ${
+          theme.isLight ? 'opacity-15' : 'opacity-20'
         } ${theme.ambientMesh}`}
       />
 

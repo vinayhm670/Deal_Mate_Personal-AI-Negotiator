@@ -24,7 +24,6 @@ import {
 import { Product } from '../../types';
 import { PRODUCTS } from '../../data/catalog';
 import { ThemeId, THEMES } from '../../types/theme';
-import { CyberScene3D } from '../common/CyberScene3D';
 import { Pipeline3DStage } from './Pipeline3DStage';
 import {
   SearchQuickStartDropdown,
@@ -479,16 +478,6 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
     <div className="space-y-14 sm:space-y-20 pb-10">
       {/* 1. CINEMATIC 3D HERO SECTION (Responsive on both Desktop & Mobile) */}
       <section className="relative pt-2 sm:pt-4 lg:py-8">
-        {/* Interactive 3D Particle & Ring Canvas */}
-        <div className="absolute inset-0 -z-10 overflow-hidden rounded-3xl pointer-events-none opacity-65">
-          <CyberScene3D
-            intensity="ambient"
-            interactive={true}
-            particleColors={theme.particleColors}
-            ringColors={theme.ringColors}
-          />
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
           {/* Left Column: Headline, Search & Primary CTAs */}
           <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-left">
