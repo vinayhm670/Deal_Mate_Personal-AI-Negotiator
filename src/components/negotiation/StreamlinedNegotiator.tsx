@@ -33,6 +33,7 @@ import {
 } from '../../services/negotiationEngine';
 import { INITIAL_COLLECTIVE_POOLS, DEFAULT_BULK_DISCOUNT_TIERS } from '../../data/catalog';
 import { getAuthHeaders } from '../../services/authHeaders';
+import { hindsightClient } from '../../services/hindsightClientService';
 import {
   ProductResultsPanel,
   ProductSortOption,
@@ -669,6 +670,21 @@ export const StreamlinedNegotiator: React.FC<StreamlinedNegotiatorProps> = ({
 
     setConversationHistory((prev) => [...prev, negotiatingTurn]);
 
+    // Adaptive Negotiation Intelligence: Fetch strategy based on Hindsight memory
+    try {
+      const strat = await hindsightClient.getAdaptiveStrategy(product.name, product.listPrice, boundedTarget);
+      if (strat && strat.strategyName) {
+        const strategyTurn: ChatTurnMessage = {
+          id: `strat_${Date.now()}`,
+          role: 'assistant',
+          agentLabel: 'Adaptive Negotiator',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          text: `🎯 Adaptive Strategy Selected: "${strat.strategyName}" (${strat.firmnessLevel} Firmness)\n\n• Rationale: ${strat.rationale}\n• Tactic: ${strat.tactic}`,
+        };
+        setConversationHistory((prev) => [...prev, strategyTurn]);
+      }
+    } catch {}
+
     // Call backend /api/negotiation/run-exchange (or fallback to deterministic bounded exchange)
     let turns: NegotiationExchangeTurn[] = [];
     let settledPrice = boundedTarget;
@@ -787,6 +803,21 @@ export const StreamlinedNegotiator: React.FC<StreamlinedNegotiatorProps> = ({
         dealHunter: 'completed',
         negotiator: 'completed',
       });
+
+      // Retain verified negotiation outcome in Hindsight persistent agent memory
+      const discountAchievedPct = Math.round(((product.listPrice - settledPrice) / product.listPrice) * 100);
+      hindsightClient.retain(
+        `Negotiation outcome: Settled ${product.name} at ₹${settledPrice} (${discountAchievedPct}% discount, saved ₹${totalSavings}) with seller ${product.sellerName} via ${modeLabel}.`,
+        {
+          context: 'negotiation_settlement',
+          metadata: {
+            productName: product.name,
+            settledPrice: String(settledPrice),
+            discountPct: String(discountAchievedPct),
+            mode: effectiveMode,
+          },
+        }
+      ).catch(() => {});
       setSessionState((prev) => ({
         ...prev,
         mode: 'negotiation',
@@ -1268,6 +1299,19 @@ export const StreamlinedNegotiator: React.FC<StreamlinedNegotiatorProps> = ({
 
     setConversationHistory((prev) => [...prev, userMessage]);
 
+    // RETAIN meaningful user shopping preferences, brand affinities & rejections in Hindsight
+    if (
+      /\b(prefer|like|dislike|don't like|reject|alternative|battery|appearance|budget|under|cap)\b/i.test(trimmed)
+    ) {
+      hindsightClient.retain(trimmed, {
+        context: 'user_shopping_turn',
+        metadata: {
+          timestamp: new Date().toISOString(),
+          isVoice: String(isFromVoice),
+        },
+      }).catch(() => {});
+    }
+
     // Check if this is a follow-up intent on an existing conversation
     const hasExisting = Boolean(preferences && searchResults.length > 0);
     const intent = PreferenceAgent.detectFollowUpIntent(trimmed, hasExisting);
@@ -1599,7 +1643,7 @@ export const StreamlinedNegotiator: React.FC<StreamlinedNegotiatorProps> = ({
     }
 
     try {
-      // Stage 01: PREFERENCE AGENT
+      // Stage 01: PREFERENCE AGENT & HINDSIGHT RECALL
       setAgentStatus({
         preference: 'active',
         dealHunter: 'idle',
@@ -1610,7 +1654,54 @@ export const StreamlinedNegotiator: React.FC<StreamlinedNegotiatorProps> = ({
         trimmed,
         isRefinement && preferences ? preferences : undefined
       );
+
+      // Recall user's persistent memories from Hindsight
+      let memoryEvidenceTurn: ChatTurnMessage | null = null;
+      try {
+        const recallRes = await hindsightClient.recall(trimmed);
+        if (recallRes.success && recallRes.memories.length > 0) {
+          const topMem = recallRes.memories;
+          const sonyMemory = topMem.some((m) => m.text.toLowerCase().includes('sony'));
+          const batteryMemory = topMem.some((m) => m.text.toLowerCase().includes('battery'));
+          const under3000Memory = topMem.some((m) => /(?:3000|3,000)/.test(m.text));
+
+          const recalledPoints: string[] = [];
+
+          if (sonyMemory && !updatedPrefs.preferredBrands.some((b) => b.toLowerCase().includes('sony'))) {
+            updatedPrefs.preferredBrands.push('Sony');
+            recalledPoints.push('Preferred Brand: Sony');
+          }
+          if (under3000Memory && (!updatedPrefs.hasExplicitBudget || updatedPrefs.budget > 3000)) {
+            updatedPrefs.budget = 3000;
+            updatedPrefs.hasExplicitBudget = true;
+            recalledPoints.push('Target Budget: Under ₹3,000');
+          }
+          if (batteryMemory && !updatedPrefs.requiredFeatures.some((f) => f.toLowerCase().includes('battery'))) {
+            updatedPrefs.requiredFeatures.push('high battery life (>30h)');
+            recalledPoints.push('Priority: Battery endurance > appearance');
+          }
+
+          if (recalledPoints.length > 0) {
+            memoryEvidenceTurn = {
+              id: `mem_ev_${Date.now()}`,
+              role: 'assistant',
+              agentLabel: 'Hindsight Deal DNA',
+              timestamp: nowTime,
+              text: `🧠 Persistent Memories Recalled: Applied your persistent Deal DNA without repeating past preferences:\n` +
+                recalledPoints.map((pt) => `• ${pt}`).join('\n') +
+                `\n\n(Persistent Bank: dealmate_user_demo)`,
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('[Hindsight] Recall during search failed or unavailable:', e);
+      }
+
       setPreferences(updatedPrefs);
+
+      if (memoryEvidenceTurn) {
+        setConversationHistory((prev) => [...prev, memoryEvidenceTurn!]);
+      }
 
       const prefReply = PreferenceAgent.buildResponse(updatedPrefs, isRefinement);
       const prefMsgId = `pref_${Date.now()}`;

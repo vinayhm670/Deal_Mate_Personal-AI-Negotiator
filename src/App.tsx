@@ -23,6 +23,7 @@ import { getAuthHeaders } from './services/authHeaders';
 import { DiwaliCelebration } from './components/diwali/DiwaliCelebration';
 import { SupabaseConfigModal } from './components/supabase/SupabaseConfigModal';
 import { supabaseService } from './supabase';
+import { MemoryIntelligenceModal } from './components/memory/MemoryIntelligenceModal';
 
 export type IntendedAction =
   | { type: 'DEMO_EARBUDS' }
@@ -234,6 +235,7 @@ export default function App() {
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
+  const [isMemoryIntelligenceOpen, setIsMemoryIntelligenceOpen] = useState(false);
   const [activeDealToken, setActiveDealToken] = useState<DealToken | null>(null);
   const [checkoutProduct, setCheckoutProduct] = useState<Product>(initialProducts[0]);
 
@@ -1333,13 +1335,13 @@ export default function App() {
     setActiveDealToken(null);
     supabaseService.saveOrder({
       id: newOrder.id,
-      user_id: newOrder.userId || currentUser?.uid,
+      user_id: newOrder.buyerUserId || currentUser?.uid,
       customer_name: newOrder.shippingAddress?.fullName || currentUser?.displayName,
-      customer_email: newOrder.shippingAddress?.email || currentUser?.email,
-      shipping_address: newOrder.shippingAddress?.addressLine1 || 'Online Order',
+      customer_email: newOrder.buyerEmail || currentUser?.email,
+      shipping_address: newOrder.shippingAddress?.address || 'Online Order',
       product_id: newOrder.product.id,
       product_name: newOrder.product.name,
-      final_price: newOrder.finalPrice,
+      final_price: newOrder.totalPaid,
       status: newOrder.status,
     }).catch(() => {});
 
@@ -1488,6 +1490,7 @@ export default function App() {
         totalPlatformSavings={totalPlatformSavings}
         onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
         onToggleDiwali={handleToggleDiwali}
+        onOpenMemoryIntelligence={() => setIsMemoryIntelligenceOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -1771,6 +1774,13 @@ export default function App() {
       <SupabaseConfigModal
         isOpen={isSupabaseModalOpen}
         onClose={() => setIsSupabaseModalOpen(false)}
+      />
+
+      {/* Hindsight Deal DNA & Memory Intelligence Modal */}
+      <MemoryIntelligenceModal
+        isOpen={isMemoryIntelligenceOpen}
+        onClose={() => setIsMemoryIntelligenceOpen(false)}
+        onNavigateToDemoSession={(q) => handleStartAIShoppingWithQuery(q)}
       />
 
       {/* Quiet Refined Footer */}

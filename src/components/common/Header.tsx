@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Zap, Bell, Bookmark, Layers, Sparkles, TrendingDown, ShieldCheck, Database, Flame } from 'lucide-react';
+import { Zap, Bell, Bookmark, Layers, Sparkles, TrendingDown, ShieldCheck, Database, Flame, Brain } from 'lucide-react';
 import { soundEffects } from '../../services/soundEffects';
 import { ThemeId, THEMES } from '../../types/theme';
 import { AppUser } from '../../types';
@@ -41,6 +41,7 @@ interface HeaderProps {
   totalPlatformSavings?: number;
   onOpenSupabaseModal?: () => void;
   onToggleDiwali?: () => void;
+  onOpenMemoryIntelligence?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -60,6 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
   totalPlatformSavings = 18420,
   onOpenSupabaseModal,
   onToggleDiwali,
+  onOpenMemoryIntelligence,
 }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -181,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => {
-                soundEffects.playChime();
+                soundEffects.playBlip();
                 onToggleDiwali();
               }}
               title="Diwali Special Celebration & Fireworks"
@@ -189,6 +191,24 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <span className="text-sm">🪔</span>
               <span className="hidden xl:inline">Diwali</span>
+            </button>
+          )}
+
+          {/* Deal DNA / Hindsight Persistent Memory Button */}
+          {onOpenMemoryIntelligence && (
+            <button
+              type="button"
+              onClick={() => {
+                soundEffects.playBlip();
+                onOpenMemoryIntelligence();
+              }}
+              title="DEAL DNA: Hindsight Persistent Memory & Self-Learning Dashboard"
+              aria-label="Open Deal DNA and Hindsight memory intelligence"
+              className="h-9 px-3 rounded-lg border border-indigo-500/50 bg-gradient-to-r from-indigo-950/70 to-purple-950/70 hover:from-indigo-900/80 hover:to-purple-900/80 text-indigo-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm shadow-indigo-500/20"
+            >
+              <Brain className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+              <span>Deal DNA</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             </button>
           )}
 

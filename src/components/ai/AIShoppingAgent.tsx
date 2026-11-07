@@ -74,6 +74,7 @@ export const AIShoppingAgent: React.FC<AIShoppingAgentProps> = ({
   onSaveToggle,
   savedProductIds,
   onViewStore,
+  onOpenVoiceModal,
 }) => {
   const firstRequirement = useMemo(() => {
     if (initialQuery) return RecommendationEngine.parseUserQuery(initialQuery);
@@ -114,7 +115,9 @@ export const AIShoppingAgent: React.FC<AIShoppingAgentProps> = ({
     const unsub = aiVoice.subscribe((speaking) => {
       setIsAiSpeaking(speaking);
     });
-    return () => unsub();
+    return () => {
+      unsub();
+    };
   }, []);
 
   useEffect(() => {

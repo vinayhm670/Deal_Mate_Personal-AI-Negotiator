@@ -176,7 +176,13 @@ export type FollowUpIntentType =
 export interface ChatTurnMessage {
   id: string;
   role: 'user' | 'assistant';
-  agentLabel?: 'Preference Agent' | 'Deal Hunter' | 'Negotiator';
+  agentLabel?:
+    | 'Preference Agent'
+    | 'Deal Hunter'
+    | 'Negotiator'
+    | 'Adaptive Negotiator'
+    | 'Hindsight Deal DNA'
+    | 'Memory Intelligence';
   timestamp: string;
   text: string;
   bulletPoints?: string[];
