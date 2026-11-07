@@ -5,7 +5,8 @@ export type ThemeId =
   | 'cosmic-nebula'
   | 'emerald-matrix'
   | 'titanium-stealth'
-  | 'solar-gold';
+  | 'solar-gold'
+  | 'diwali-festive';
 
 export interface ThemeConfig {
   id: ThemeId;
@@ -296,5 +297,41 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
       spotlight2: 'bg-orange-600/15',
     },
     swatchPreview: ['#21160C', '#f59e0b', '#fbbf24'],
+  },
+  'diwali-festive': {
+    id: 'diwali-festive',
+    name: 'Diwali Celebration',
+    tagline: 'Deep royal festive night with sparkling fireworks, diya gold & festive celebration',
+    bgHex: '#0c0714',
+    isLight: false,
+    bodyGradient: 'bg-gradient-to-b from-[#150a21] via-[#0d0714] to-[#08040d]',
+    ambientMesh: 'from-amber-500/25 via-rose-600/20 to-yellow-400/20',
+    primaryAccent: 'text-amber-400',
+    primaryAccentHex: '#fbbf24',
+    secondaryAccentHex: '#f97316',
+    particleColors: ['#fbbf24', '#f97316', '#ef4444', '#10b981', '#a855f7', '#38bdf8', '#ffffff'],
+    ringColors: ['rgba(251, 191, 36, 0.45)', 'rgba(249, 115, 22, 0.35)'],
+    glassBorder: 'border-amber-400/35',
+    cardBg: 'bg-[#180e27]/85',
+    badgeBg: 'bg-amber-500/20 border-amber-400/50 text-amber-300',
+    level1Bg: '#0c0714',
+    level2Bg: '#150a21',
+    level3Card: '#1a0e2a',
+    level4Elevated: '#24143a',
+    level5Surface: '#311c4e',
+    borderPrimary: '#522b7a',
+    borderSecondary: '#6d3a9f',
+    borderActive: '#fbbf24',
+    textPrimary: '#FFFDF5',
+    textSecondary: '#FDE68A',
+    textMuted: '#C084FC',
+    buyerBlue: '#38bdf8',
+    sellerAmber: '#fbbf24',
+    dealEmerald: '#34d399',
+    glowClasses: {
+      spotlight1: 'bg-amber-500/25',
+      spotlight2: 'bg-rose-500/20',
+    },
+    swatchPreview: ['#150a21', '#fbbf24', '#f97316'],
   },
 };

@@ -21,6 +21,38 @@ The platform brings product discovery, intelligent negotiation, deal analysis, a
 * **Deal Optimization:** Evaluate product prices, eligible discounts, and offers to estimate the best available purchase option.
 * **Budget-Friendly Shopping:** Help users compare purchase options and make decisions that align with their spending limits.
 * **Integrated Shopping Experience:** Bring discovery, negotiation, and savings analysis into a unified platform.
+* **🪔 Diwali Special Edition:** Live interactive fireworks and firecrackers simulation (Rockets, Chakri, Anar fountain, and sparkler cursor trail) with festive sound synthesis and customizable celebration controls.
+* **⚡ Supabase Database Integration:** Built-in connection to Supabase for cloud persistence of deals, negotiation audit logs, and orders with automated local fallback.
+* **🚀 Vercel Ready:** Preconfigured `vercel.json` for seamless zero-config deployment.
+
+## 🚀 Deploying to Vercel
+
+1. **Push your code to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Add Diwali celebration, Supabase integration, and Vercel configuration"
+   git push origin main
+   ```
+2. **Import to Vercel**:
+   - Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
+   - Select your GitHub repository (`vinayhm670/Deal_Mate_Personal-AI-Negotiator`).
+   - Framework Preset: **Vite**
+   - Root Directory: `./`
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+3. **Set Environment Variables in Vercel (Optional)**:
+   - `VITE_SUPABASE_URL`: Your Supabase Project URL
+   - `VITE_SUPABASE_ANON_KEY`: Your Supabase Anon Key
+   - `GEMINI_API_KEY`: Your Google Gemini API Key
+4. Click **Deploy**!
+
+## ⚡ Supabase Setup (1-Click)
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Go to the **SQL Editor** tab in your Supabase project dashboard.
+3. Copy the schema provided in the in-app **Supabase Modal** (or from `src/supabase.ts`) and click **Run**.
+4. Copy your **Project URL** and **Anon Key** into your `.env` or paste them directly in the DealMate header Supabase dialog.
+
 
 ## How It Works
 

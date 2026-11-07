@@ -492,15 +492,28 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
           {/* Left Column: Headline, Search & Primary CTAs */}
           <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-left">
-            <div
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-[11px] sm:text-xs font-mono font-semibold ${
-                theme.isLight
-                  ? 'bg-blue-50 border-blue-200 text-blue-700'
-                  : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 shrink-0" />
-              <span>Autonomous Multi-Agent Bargaining Engine</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <div
+                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-[11px] sm:text-xs font-mono font-semibold ${
+                  currentThemeId === 'diwali-festive'
+                    ? 'bg-amber-500/20 border-amber-400/50 text-amber-300 shadow-md shadow-amber-500/20 animate-pulse'
+                    : theme.isLight
+                    ? 'bg-blue-50 border-blue-200 text-blue-700'
+                    : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
+                }`}
+              >
+                {currentThemeId === 'diwali-festive' ? (
+                  <>
+                    <span className="text-sm">🪔</span>
+                    <span>Diwali Dhamaka Fest · Live Crackers & AI Bargains Active!</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                    <span>Autonomous Multi-Agent Bargaining Engine</span>
+                  </>
+                )}
+              </div>
             </div>
 
             <h1
@@ -509,7 +522,11 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
               }`}
             >
               Never Pay Retail Price.{' '}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500">
+              <span className={`bg-clip-text text-transparent bg-gradient-to-r ${
+                currentThemeId === 'diwali-festive'
+                  ? 'from-amber-400 via-orange-400 to-rose-400'
+                  : 'from-blue-600 via-cyan-500 to-emerald-500'
+              }`}>
                 Your AI Negotiates
               </span>{' '}
               With Seller AI Live.

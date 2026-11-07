@@ -77,7 +77,7 @@ export const ThemeAndBgmBar: React.FC<ThemeAndBgmBarProps> = ({
                 </span>
               </div>
 
-              <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pt-1">
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 pt-1">
                 {(Object.keys(THEMES) as ThemeId[]).map((themeKey) => {
                   const t = THEMES[themeKey];
                   const isSelected = currentThemeId === themeKey;

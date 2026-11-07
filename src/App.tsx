@@ -20,6 +20,9 @@ import { AuthModal, AuthRoutePath, AuthGateContext } from './components/auth/Aut
 import { StoreOwnerPortal } from './components/storeOwner/StoreOwnerPortal';
 import { ThemeId, THEMES } from './types/theme';
 import { getAuthHeaders } from './services/authHeaders';
+import { DiwaliCelebration } from './components/diwali/DiwaliCelebration';
+import { SupabaseConfigModal } from './components/supabase/SupabaseConfigModal';
+import { supabaseService } from './supabase';
 
 export type IntendedAction =
   | { type: 'DEMO_EARBUDS' }
@@ -230,8 +233,19 @@ export default function App() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
   const [activeDealToken, setActiveDealToken] = useState<DealToken | null>(null);
   const [checkoutProduct, setCheckoutProduct] = useState<Product>(initialProducts[0]);
+
+  // Diwali Celebration Mode
+  const [isDiwaliMode, setIsDiwaliMode] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('dealmate_diwali_mode');
+      return saved !== null ? saved === 'true' : true; // Default ON for festive delight
+    } catch {
+      return true;
+    }
+  });
 
   // Background Theme Palette State
   const [currentThemeId, setCurrentThemeId] = useState<ThemeId>(() => {
@@ -241,16 +255,41 @@ export default function App() {
     } catch {
       // ignore
     }
-    return 'pure-white';
+    return 'diwali-festive';
   });
 
   const handleSelectTheme = (newThemeId: ThemeId) => {
     setCurrentThemeId(newThemeId);
+    if (newThemeId === 'diwali-festive') {
+      setIsDiwaliMode(true);
+      try {
+        localStorage.setItem('dealmate_diwali_mode', 'true');
+      } catch {
+        // ignore
+      }
+    }
     try {
       localStorage.setItem('dealmate_theme', newThemeId);
     } catch {
       // ignore
     }
+  };
+
+  const handleToggleDiwali = () => {
+    setIsDiwaliMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('dealmate_diwali_mode', String(next));
+      } catch {
+        // ignore
+      }
+      if (next) {
+        handleSelectTheme('diwali-festive');
+      } else {
+        handleSelectTheme('pure-white');
+      }
+      return next;
+    });
   };
 
   // Verify persisted session token with backend on mount
@@ -1292,6 +1331,18 @@ export default function App() {
 
   const handleOrderConfirmed = (newOrder: Order) => {
     setActiveDealToken(null);
+    supabaseService.saveOrder({
+      id: newOrder.id,
+      user_id: newOrder.userId || currentUser?.uid,
+      customer_name: newOrder.shippingAddress?.fullName || currentUser?.displayName,
+      customer_email: newOrder.shippingAddress?.email || currentUser?.email,
+      shipping_address: newOrder.shippingAddress?.addressLine1 || 'Online Order',
+      product_id: newOrder.product.id,
+      product_name: newOrder.product.name,
+      final_price: newOrder.finalPrice,
+      status: newOrder.status,
+    }).catch(() => {});
+
     setOrders((prev) => {
       const updated = [newOrder, ...prev.filter((o) => o.id !== newOrder.id)];
       try {
@@ -1380,6 +1431,14 @@ export default function App() {
         } ${theme.ambientMesh}`}
       />
 
+      {/* Live Interactive Diwali Celebration & Firecrackers */}
+      {isDiwaliMode && (
+        <DiwaliCelebration
+          isDiwaliMode={isDiwaliMode}
+          onToggleDiwaliMode={handleToggleDiwali}
+        />
+      )}
+
       {/* Top Navigation Bar */}
       <Header
         currentTab={currentTab}
@@ -1439,6 +1498,8 @@ export default function App() {
         onSignOut={handleSignOut}
         onOpenVoiceModal={() => setIsVoiceOpen(true)}
         totalPlatformSavings={totalPlatformSavings}
+        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
+        onToggleDiwali={handleToggleDiwali}
       />
 
       {/* Main Content Area */}
@@ -1716,6 +1777,12 @@ export default function App() {
         isOpen={isVoiceOpen}
         onClose={() => setIsVoiceOpen(false)}
         onVoiceCommand={handleStartAIShoppingWithQuery}
+      />
+
+      {/* Supabase Database Configuration & Status Modal */}
+      <SupabaseConfigModal
+        isOpen={isSupabaseModalOpen}
+        onClose={() => setIsSupabaseModalOpen(false)}
       />
 
       {/* Quiet Refined Footer */}
