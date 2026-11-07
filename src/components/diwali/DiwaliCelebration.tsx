@@ -682,3 +682,4 @@ export const DiwaliCelebration: React.FC<DiwaliCelebrationProps> = ({
     </>
   );
 };
+

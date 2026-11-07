@@ -221,3 +221,4 @@ export const SupabaseConfigModal: React.FC<SupabaseConfigModalProps> = ({
     </div>
   );
 };
+

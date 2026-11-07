@@ -215,3 +215,4 @@ create policy "Allow all actions on deals" on public.deals for all using (true) 
 create policy "Allow all actions on orders" on public.orders for all using (true) with check (true);
 create policy "Allow all actions on negotiations" on public.negotiations for all using (true) with check (true);
 `;
+
